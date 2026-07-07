@@ -1,0 +1,221 @@
+# KNOWN_VULNS — ground-truth vulnerability catalog
+# Purpose: answer key for benchmarking Scantonomous scan findings against this app.
+# Diff scanner output vs. this file: a hit on a `vulnerable_source` path == true positive;
+# a hit on a `secure_source` path == false positive.
+#
+# Schema per entry:
+#   id               stable slug for this vuln class
+#   category         human-readable vulnerability class
+#   cwe              primary CWE id(s)
+#   owasp            OWASP Top 10 (2021) category
+#   module           app-internal module/feature name
+#   route            HTTP path to reach it (DAST)
+#   parameter        injectable/tainted input(s) (DAST)
+#   vulnerable_source source files that ARE vulnerable (SAST true-positive targets)
+#   secure_source    hardened variant that is NOT vulnerable (false-positive test)
+#   notes            context / caveats
+
+app: DVWA
+full_name: Damn Vulnerable Web Application
+upstream: https://github.com/digininja/DVWA
+fork: https://github.com/tomj12k/DVWA
+language: PHP
+scan_surface: [SAST-php, DAST-web]
+security_levels: [low, medium, high, impossible]
+catalog_notes: >
+  Every module ships four source variants. low/medium/high are all exploitable
+  (progressively harder). `impossible` is the intentionally hardened version and
+  should NOT be flagged — use it to measure Scantonomous false positives.
+  Paths below are relative to repo root.
+
+vulns:
+  - id: dvwa-sqli
+    category: SQL Injection
+    cwe: [CWE-89]
+    owasp: A03:2021-Injection
+    module: sqli
+    route: /vulnerabilities/sqli/
+    parameter: [id]
+    vulnerable_source: [vulnerabilities/sqli/source/low.php, vulnerabilities/sqli/source/medium.php, vulnerabilities/sqli/source/high.php]
+    secure_source: [vulnerabilities/sqli/source/impossible.php]
+
+  - id: dvwa-sqli-blind
+    category: Blind SQL Injection
+    cwe: [CWE-89]
+    owasp: A03:2021-Injection
+    module: sqli_blind
+    route: /vulnerabilities/sqli_blind/
+    parameter: [id]
+    vulnerable_source: [vulnerabilities/sqli_blind/source/low.php, vulnerabilities/sqli_blind/source/medium.php, vulnerabilities/sqli_blind/source/high.php]
+    secure_source: [vulnerabilities/sqli_blind/source/impossible.php]
+
+  - id: dvwa-cmd-injection
+    category: OS Command Injection
+    cwe: [CWE-78]
+    owasp: A03:2021-Injection
+    module: exec
+    route: /vulnerabilities/exec/
+    parameter: [ip]
+    vulnerable_source: [vulnerabilities/exec/source/low.php, vulnerabilities/exec/source/medium.php, vulnerabilities/exec/source/high.php]
+    secure_source: [vulnerabilities/exec/source/impossible.php]
+
+  - id: dvwa-xss-reflected
+    category: Reflected XSS
+    cwe: [CWE-79]
+    owasp: A03:2021-Injection
+    module: xss_r
+    route: /vulnerabilities/xss_r/
+    parameter: [name]
+    vulnerable_source: [vulnerabilities/xss_r/source/low.php, vulnerabilities/xss_r/source/medium.php, vulnerabilities/xss_r/source/high.php]
+    secure_source: [vulnerabilities/xss_r/source/impossible.php]
+
+  - id: dvwa-xss-stored
+    category: Stored XSS
+    cwe: [CWE-79]
+    owasp: A03:2021-Injection
+    module: xss_s
+    route: /vulnerabilities/xss_s/
+    parameter: [txtName, mtxMessage]
+    vulnerable_source: [vulnerabilities/xss_s/source/low.php, vulnerabilities/xss_s/source/medium.php, vulnerabilities/xss_s/source/high.php]
+    secure_source: [vulnerabilities/xss_s/source/impossible.php]
+
+  - id: dvwa-xss-dom
+    category: DOM-based XSS
+    cwe: [CWE-79]
+    owasp: A03:2021-Injection
+    module: xss_d
+    route: /vulnerabilities/xss_d/
+    parameter: [default]
+    vulnerable_source: [vulnerabilities/xss_d/source/low.php, vulnerabilities/xss_d/source/medium.php, vulnerabilities/xss_d/source/high.php]
+    secure_source: [vulnerabilities/xss_d/source/impossible.php]
+
+  - id: dvwa-file-inclusion
+    category: File Inclusion (LFI/RFI) & Path Traversal
+    cwe: [CWE-98, CWE-22]
+    owasp: A03:2021-Injection
+    module: fi
+    route: /vulnerabilities/fi/
+    parameter: [page]
+    vulnerable_source: [vulnerabilities/fi/source/low.php, vulnerabilities/fi/source/medium.php, vulnerabilities/fi/source/high.php]
+    secure_source: [vulnerabilities/fi/source/impossible.php]
+
+  - id: dvwa-file-upload
+    category: Unrestricted File Upload
+    cwe: [CWE-434]
+    owasp: A05:2021-Security Misconfiguration
+    module: upload
+    route: /vulnerabilities/upload/
+    parameter: [uploaded]
+    vulnerable_source: [vulnerabilities/upload/source/low.php, vulnerabilities/upload/source/medium.php, vulnerabilities/upload/source/high.php]
+    secure_source: [vulnerabilities/upload/source/impossible.php]
+
+  - id: dvwa-csrf
+    category: Cross-Site Request Forgery
+    cwe: [CWE-352]
+    owasp: A01:2021-Broken Access Control
+    module: csrf
+    route: /vulnerabilities/csrf/
+    parameter: [password_new, password_conf]
+    vulnerable_source: [vulnerabilities/csrf/source/low.php, vulnerabilities/csrf/source/medium.php, vulnerabilities/csrf/source/high.php]
+    secure_source: [vulnerabilities/csrf/source/impossible.php]
+
+  - id: dvwa-brute-force
+    category: Brute Force (no lockout / weak auth)
+    cwe: [CWE-307]
+    owasp: A07:2021-Identification and Authentication Failures
+    module: brute
+    route: /vulnerabilities/brute/
+    parameter: [username, password]
+    vulnerable_source: [vulnerabilities/brute/source/low.php, vulnerabilities/brute/source/medium.php, vulnerabilities/brute/source/high.php]
+    secure_source: [vulnerabilities/brute/source/impossible.php]
+
+  - id: dvwa-open-redirect
+    category: Open Redirect
+    cwe: [CWE-601]
+    owasp: A01:2021-Broken Access Control
+    module: open_redirect
+    route: /vulnerabilities/open_redirect/
+    parameter: [redirect]
+    vulnerable_source: [vulnerabilities/open_redirect/source/low.php, vulnerabilities/open_redirect/source/medium.php, vulnerabilities/open_redirect/source/high.php]
+    secure_source: [vulnerabilities/open_redirect/source/impossible.php]
+
+  - id: dvwa-broken-access-control
+    category: Broken Access Control / IDOR
+    cwe: [CWE-639, CWE-284]
+    owasp: A01:2021-Broken Access Control
+    module: bac
+    route: /vulnerabilities/bac/
+    parameter: [user_id, action, user_role]
+    vulnerable_source: [vulnerabilities/bac/source/low.php, vulnerabilities/bac/source/medium.php, vulnerabilities/bac/source/high.php]
+    secure_source: [vulnerabilities/bac/source/impossible.php]
+
+  - id: dvwa-auth-bypass
+    category: Authentication Bypass
+    cwe: [CWE-287]
+    owasp: A07:2021-Identification and Authentication Failures
+    module: authbypass
+    route: /vulnerabilities/authbypass/
+    parameter: []
+    vulnerable_source: [vulnerabilities/authbypass/source/low.php, vulnerabilities/authbypass/source/medium.php, vulnerabilities/authbypass/source/high.php]
+    secure_source: [vulnerabilities/authbypass/source/impossible.php]
+
+  - id: dvwa-weak-session-ids
+    category: Weak Session IDs
+    cwe: [CWE-330, CWE-384]
+    owasp: A07:2021-Identification and Authentication Failures
+    module: weak_id
+    route: /vulnerabilities/weak_id/
+    parameter: []
+    vulnerable_source: [vulnerabilities/weak_id/source/low.php, vulnerabilities/weak_id/source/medium.php, vulnerabilities/weak_id/source/high.php]
+    secure_source: [vulnerabilities/weak_id/source/impossible.php]
+
+  - id: dvwa-insecure-captcha
+    category: Insecure CAPTCHA
+    cwe: [CWE-804]
+    owasp: A07:2021-Identification and Authentication Failures
+    module: captcha
+    route: /vulnerabilities/captcha/
+    parameter: [step, password_new, password_conf]
+    vulnerable_source: [vulnerabilities/captcha/source/low.php, vulnerabilities/captcha/source/medium.php, vulnerabilities/captcha/source/high.php]
+    secure_source: [vulnerabilities/captcha/source/impossible.php]
+
+  - id: dvwa-weak-crypto
+    category: Weak / Broken Cryptography
+    cwe: [CWE-327]
+    owasp: A02:2021-Cryptographic Failures
+    module: cryptography
+    route: /vulnerabilities/cryptography/
+    parameter: []
+    vulnerable_source: [vulnerabilities/cryptography/source/low.php, vulnerabilities/cryptography/source/medium.php, vulnerabilities/cryptography/source/high.php]
+    secure_source: [vulnerabilities/cryptography/source/impossible.php]
+
+  - id: dvwa-csp-bypass
+    category: Content Security Policy Bypass
+    cwe: [CWE-1021, CWE-693]
+    owasp: A05:2021-Security Misconfiguration
+    module: csp
+    route: /vulnerabilities/csp/
+    parameter: []
+    vulnerable_source: [vulnerabilities/csp/source/low.php, vulnerabilities/csp/source/medium.php, vulnerabilities/csp/source/high.php]
+    secure_source: [vulnerabilities/csp/source/impossible.php]
+
+  - id: dvwa-js-client-controls
+    category: Client-side Control Bypass (JavaScript)
+    cwe: [CWE-602]
+    owasp: A04:2021-Insecure Design
+    module: javascript
+    route: /vulnerabilities/javascript/
+    parameter: [token, phrase]
+    vulnerable_source: [vulnerabilities/javascript/source/low.php, vulnerabilities/javascript/source/medium.php, vulnerabilities/javascript/source/high.php]
+    secure_source: [vulnerabilities/javascript/source/impossible.php]
+
+  - id: dvwa-api
+    category: API vulnerabilities (SQLi/authz over API endpoints)
+    cwe: [CWE-89, CWE-284]
+    owasp: A03:2021-Injection
+    module: api
+    route: /vulnerabilities/api/
+    parameter: [id]
+    vulnerable_source: [vulnerabilities/api/]
+    secure_source: []
+    notes: API module bundles injection + access-control issues across its endpoints.
